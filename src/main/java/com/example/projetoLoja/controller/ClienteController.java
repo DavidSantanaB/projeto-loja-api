@@ -61,8 +61,8 @@ public class ClienteController {
     public ResponseEntity<ClienteDTO> atualizarCliente(@PathVariable Long id, @Valid @RequestBody ClienteRequestDTO clienteAtualizadoDTO) {
         return clienteRepository.findById(id)
                 .map(cliente -> {
-                    cliente.setNome(clienteAtualizadoDTO.getNome());
-                    cliente.setEmail(clienteAtualizadoDTO.getEmail());
+                    Cliente atualizado = ClienteMapper.toEntity(clienteAtualizadoDTO);
+                    org.springframework.beans.BeanUtils.copyProperties(atualizado, cliente, "id");
                     Cliente clienteSalvo = clienteRepository.save(cliente);
                     return ResponseEntity.ok(ClienteMapper.toDTO(clienteSalvo));
                 })

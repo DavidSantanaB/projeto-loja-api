@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.server.ResponseStatusException;
+import java.net.URI;
 
 import com.example.projetoLoja.dto.PedidoMapper;
 import com.example.projetoLoja.dto.PedidoRequestDTO;
@@ -36,16 +39,16 @@ public class PedidoController {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    // POST: Criar um novo pedido
+    // POST: Criar um novo pedido (Método Refatorado)
     @PostMapping
     public ResponseEntity<PedidoResponseDTO> criarPedido(@Valid @RequestBody PedidoRequestDTO pedidoRequestDTO) {
+        
+        // 1. Busca o cliente. Se não achar, já retorna 404.
+        //    Isso é um pouco mais limpo do que o "orElse(null)"
         Cliente cliente = clienteRepository.findById(pedidoRequestDTO.getClienteId())
-                .orElse(null);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
 
-        if (cliente == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
+        // 2. Cria o pedido (seu código original está perfeito)
         Pedido pedido = new Pedido();
         pedido.setValorTotal(pedidoRequestDTO.getValorTotal());
         pedido.setStatus(pedidoRequestDTO.getStatus());
@@ -53,7 +56,16 @@ public class PedidoController {
         pedido.setCliente(cliente);
 
         Pedido novoPedido = pedidoRepository.save(pedido);
-        return new ResponseEntity<>(PedidoMapper.toResponseDTO(novoPedido), HttpStatus.CREATED);
+
+        // 3. (Refatoração) Criar a URI do novo recurso
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest() // Pega a URL base (ex: /api/pedidos)
+                .path("/{id}")        // Adiciona o path (ex: /1)
+                .buildAndExpand(novoPedido.getId()) // Substitui {id} pelo ID gerado
+                .toUri();
+
+        // 4. Retorna 201 Created com a URI no header 'Location' e o DTO no corpo
+        return ResponseEntity.created(location).body(PedidoMapper.toResponseDTO(novoPedido));
     }
 
     // GET: Listar todos os pedidos

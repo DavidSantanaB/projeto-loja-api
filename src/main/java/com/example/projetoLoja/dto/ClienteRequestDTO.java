@@ -2,6 +2,7 @@ package com.example.projetoLoja.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -13,4 +14,9 @@ public class ClienteRequestDTO {
     @NotBlank(message = "O email é obrigatório")
     @Email(message = "O email deve ser válido")
     private String email;
+
+    // ADICIONE ESTAS LINHAS
+    @NotBlank(message = "A senha é obrigatória")
+    @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
+    private String senha;
 }

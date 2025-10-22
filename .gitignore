@@ -31,3 +31,27 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Maven
+target/
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de ambiente
+.env
+.env.local
+
+# Arquivos temporários do Spring Boot
+*.tmp
+*.jar
+*.war
